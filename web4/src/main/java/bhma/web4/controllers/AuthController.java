@@ -36,11 +36,12 @@ public class AuthController {
     @PostMapping("/register")
     public ResponseEntity<?> registerUser(@RequestBody UserEntity user) {
         if (userRepo.existsByUsername(user.getUsername())) {
-            return ResponseEntity.badRequest().body("Error: Username is already in use!");
+            return createAuthenticationToken(new LoginRequest(user.getUsername(), user.getPassword()));
         }
+        String rawPassword = user.getPassword();
         user.setPassword(bCryptPasswordEncoder.encode(user.getPassword()));
         userRepo.save(user);
-        return new ResponseEntity<>("User registered successfully!", HttpStatus.CREATED);
+        return createAuthenticationToken(new LoginRequest(user.getUsername(), rawPassword));
     }
 
     @CrossOrigin(origins = "http://localhost:4200")
